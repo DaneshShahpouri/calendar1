@@ -1,0 +1,9 @@
+:root {
+  --text-border-color: rgba(237, 60, 60, 0.133);
+  --backgrouldselected: rgb(218, 196, 0);
+  --text-border:
+    1px 0 0 var(--text-border-color), 0px 0 0 var(--text-border-color),
+    0 1px 0 var(--text-border-color), 0 0px 0 var(--text-border-color),
+    1px 1px 0 var(--text-border-color), 0px 0px 0 var(--text-border-color),
+    1px 0px 0 var(--text-border-color), 0px 1px 0 var(--text-border-color);
+}
