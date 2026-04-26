@@ -157,18 +157,22 @@ function abilitaDragRange(card, giornotradotto) {
   card.addEventListener("pointerdown", (e) => {
     if (!isRange || !startDate || !endDate) return;
 
-    console.log(card);
     if (card.classList.contains("selectedFirstDEF")) {
       draggingRange = true;
       draggingEdge = "start";
-      card.setPointerCapture(e.pointerId);
-      console.log(card.setPointerCapture(e.pointerId));
+
+      dragIniziato = true;
+      dragHaMosso = false;
+      e.preventDefault();
     }
 
     if (card.classList.contains("selectedEnd")) {
       draggingRange = true;
       draggingEdge = "end";
-      card.setPointerCapture(e.pointerId);
+
+      dragIniziato = true;
+      dragHaMosso = false;
+      e.preventDefault();
     }
   });
 
@@ -190,7 +194,6 @@ function abilitaDragRange(card, giornotradotto) {
         endDate.giornoNumerico,
       ).getTime();
 
-      // impedisce di superare la data finale
       if (nuovaStartTime <= endTime) {
         startDate = nuovaData;
       }
@@ -209,7 +212,6 @@ function abilitaDragRange(card, giornotradotto) {
         startDate.giornoNumerico,
       ).getTime();
 
-      // impedisce di andare prima della data iniziale
       if (nuovaEndTime >= startTime) {
         endDate = nuovaData;
       }
@@ -219,6 +221,7 @@ function abilitaDragRange(card, giornotradotto) {
     applicaRangeSelezionato();
   });
 }
+
 function aggiornaInputRange() {
   const input1 = calendar.querySelector(".inputHidden1");
   const input2 = calendar.querySelector(".inputHidden2");
@@ -250,4 +253,45 @@ function getDateFromCard(card) {
     mese: Number(card.dataset.mese),
     giornoNumerico: Number(card.dataset.giorno),
   };
+}
+
+function vaiAlMese(anno, mese) {
+  annodiCalendar = anno;
+  mesediCalendar = mese;
+
+  generaCalendario(anno, mese);
+}
+
+function getMeseOffset(anno, mese, offset) {
+  const data = new Date(anno, mese + offset, 1);
+
+  return {
+    anno: data.getFullYear(),
+    mese: data.getMonth(),
+  };
+}
+
+function mostraDragHoverLoader(e) {
+  nascondiDragHoverLoader();
+
+  dragHoverLoader = document.createElement("div");
+  dragHoverLoader.className = "drag-hover-loader";
+
+  document.body.appendChild(dragHoverLoader);
+
+  aggiornaDragHoverLoader(e);
+}
+
+function aggiornaDragHoverLoader(e) {
+  if (!dragHoverLoader) return;
+
+  dragHoverLoader.style.left = e.clientX + "px";
+  dragHoverLoader.style.top = e.clientY + "px";
+}
+
+function nascondiDragHoverLoader() {
+  if (!dragHoverLoader) return;
+
+  dragHoverLoader.remove();
+  dragHoverLoader = null;
 }

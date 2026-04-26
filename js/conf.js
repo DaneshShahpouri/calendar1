@@ -7,8 +7,15 @@ var stop_Genera_Calendario = false;
 var startDate = null;
 var endDate = null;
 
+let dragHoverTimer = null;
+let isDragging = false;
+let dragMode = null;
+// esempio: "start" oppure "end"
 let draggingRange = false;
 let draggingEdge = null;
+let dragHoverLoader = null; //loadermouse per mesi navigazibne
+let dragIniziato = false;
+let dragHaMosso = false;
 
 var creaCardRimanenti = true;
 var animaIngressoCard = true; //anima card effetto ingresso

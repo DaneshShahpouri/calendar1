@@ -25,6 +25,7 @@ document.addEventListener("DOMContentLoaded", function () {
       );
 
       //HEADER - LEFT PART
+      //----------------------------------------------------------------
       const left_part = creaDiveAppendi("_left", header);
       const left_part_btn = creaBtneAppendi(
         "prev_mouth",
@@ -171,6 +172,7 @@ document.addEventListener("DOMContentLoaded", function () {
       );
 
       //Aggiungo gli evetnLISTENRE dell'HEADER
+      //----------------------------------------------------------------
       left_part_btn.addEventListener("click", () => {
         //console.log("clicco su bottone sinistro - cambio un mese dietro");
         dataDiRiferimento.mese == 0
@@ -299,6 +301,78 @@ document.addEventListener("DOMContentLoaded", function () {
 
     //Funzioen che al click di fuori certi elementi mi faccia  chiudere le schede aperte
   }
+  calendar.addEventListener(
+    "pointerover",
+    function (e) {
+      const cardVuota = e.target.closest(".cardvuota");
+
+      if (!cardVuota || !draggingRange || !draggingEdge) return;
+
+      aggiornaRangeDaCardVuota(cardVuota);
+
+      const mid_calendariocentrale = calendar.querySelector(".mid_main");
+
+      clearTimeout(dragHoverTimer);
+      mostraDragHoverLoader(e);
+
+      dragHoverTimer = setTimeout(() => {
+        if (!draggingRange || !draggingEdge) {
+          nascondiDragHoverLoader();
+          return;
+        }
+
+        if (cardVuota.dataset.nav === "prev") {
+          cambiaMeseDuranteDrag(-1, mid_calendariocentrale);
+        }
+
+        if (cardVuota.dataset.nav === "next") {
+          cambiaMeseDuranteDrag(1, mid_calendariocentrale);
+        }
+
+        nascondiDragHoverLoader();
+        applicaRangeSelezionato();
+      }, 1000);
+    },
+    true,
+  );
+  calendar.addEventListener(
+    "pointerout",
+    function (e) {
+      const cardVuota = e.target.closest(".cardvuota");
+      if (!cardVuota) return;
+
+      clearTimeout(dragHoverTimer);
+      dragHoverTimer = null;
+      nascondiDragHoverLoader();
+    },
+    true,
+  );
+
+  document.addEventListener("pointerup", () => {
+    clearTimeout(dragHoverTimer);
+    dragHoverTimer = null;
+    nascondiDragHoverLoader();
+
+    draggingRange = false;
+    draggingEdge = null;
+  });
+
+  function cambiaMeseDuranteDrag(offset, mid_calendariocentrale) {
+    const nuovaData = new Date(
+      dataDiRiferimento.anno,
+      dataDiRiferimento.mese + offset,
+      1,
+    );
+
+    dataDiRiferimento.anno = nuovaData.getFullYear();
+    dataDiRiferimento.mese = nuovaData.getMonth();
+
+    popolaCalendarConGiorni(
+      dataDiRiferimento.anno,
+      dataDiRiferimento.mese,
+      mid_calendariocentrale,
+    );
+  }
 });
 
 function popolaCalendarConGiorni(annodiCalendar, mesediCalendar, wrapper) {
@@ -331,11 +405,16 @@ function popolaCalendarConGiorni(annodiCalendar, mesediCalendar, wrapper) {
 
   //Primo ciclo per craere card vuote
   // Primo ciclo: card del mese precedente
+  //----------------------------------------------------------------
   const primoGiorno = giorniDelMese[0];
   const primoTradotto = creaData_calendar(primoGiorno);
 
-  const cardPrima =
+  let cardPrima =
     primoTradotto.giornoSettimana === 0 ? 6 : primoTradotto.giornoSettimana - 1;
+
+  if (cardPrima === 0) {
+    cardPrima = 7;
+  }
 
   for (let i = cardPrima; i > 0; i--) {
     const dataPrecedente = new Date(annodiCalendar, mesediCalendar, 1 - i);
@@ -348,12 +427,25 @@ function popolaCalendarConGiorni(annodiCalendar, mesediCalendar, wrapper) {
       giornoPrecedente.giornoNumerico,
     );
 
-    cardvuote.classList.add("cardvuota");
-    cardvuote.classList.add("card-altro-mese");
+    cardvuote.classList.add("cardvuota", "card-altro-mese");
+
+    const prev = getMeseOffset(annodiCalendar, mesediCalendar, -1);
+
+    cardvuote.dataset.nav = "prev";
+    cardvuote.dataset.tipo = "vuota";
+    cardvuote.dataset.meseTarget = prev.mese;
+    cardvuote.dataset.annoTarget = prev.anno;
+    cardvuote.dataset.annoCorrente = annodiCalendar;
+    cardvuote.dataset.meseCorrente = mesediCalendar;
+    cardvuote.dataset.anno = giornoPrecedente.anno;
+    cardvuote.dataset.mese = giornoPrecedente.mese;
+    cardvuote.dataset.giorno = giornoPrecedente.giornoNumerico;
+
     animaIngressoCard(cardvuote, animIndex++);
   }
 
   // ciclo per craere card calendario
+  //----------------------------------------------------------------
   if (!isdebug_calendar) {
     for (let i = 0; i < giorniDelMese.length; i++) {
       const element = giorniDelMese[i];
@@ -414,21 +506,35 @@ function popolaCalendarConGiorni(annodiCalendar, mesediCalendar, wrapper) {
       card.addEventListener("click", (e) => {
         e.stopPropagation();
 
-        if (draggingRange) return;
+        if (dragIniziato) {
+          if (dragHaMosso) {
+            // era un drag vero: non fare la logica click normale
+            dragIniziato = false;
+            dragHaMosso = false;
+            return;
+          }
+
+          // era solo pointerdown + pointerup senza movimento: allora è click vero
+          dragIniziato = false;
+          dragHaMosso = false;
+        }
 
         gestisciClickDate(card, giornotradotto);
       });
+      abilitaDragRange(card, giornotradotto);
     }
   }
-  //Secondo ciclo  per craere card vuote
+
   // Secondo ciclo: card del mese successivo
+  //----------------------------------------------------------------
+
   if (creaCardRimanenti) {
     const ultimoGiorno = giorniDelMese[giorniDelMese.length - 1];
     const ultimoTradotto = creaData_calendar(ultimoGiorno);
 
-    const cardDaAggiungere =
+    let cardDaAggiungere =
       ultimoTradotto.giornoSettimana === 0
-        ? 0
+        ? 3
         : 7 - ultimoTradotto.giornoSettimana;
 
     for (let i = 1; i <= cardDaAggiungere; i++) {
@@ -445,9 +551,19 @@ function popolaCalendarConGiorni(annodiCalendar, mesediCalendar, wrapper) {
         wrapper,
         giornoSuccessivo.giornoNumerico,
       );
-
       cardvuota.classList.add("cardvuota");
       cardvuota.classList.add("card-altro-mese");
+      cardvuota.dataset.nav = "next"; // vuoti prima dell'1
+      const next = getMeseOffset(annodiCalendar, mesediCalendar, +1);
+
+      cardvuota.dataset.tipo = "vuota";
+      cardvuota.dataset.meseTarget = next.mese;
+      cardvuota.dataset.annoTarget = next.anno;
+      cardvuota.dataset.annoCorrente = annodiCalendar;
+      cardvuota.dataset.meseCorrente = mesediCalendar;
+      cardvuota.dataset.anno = giornoSuccessivo.anno;
+      cardvuota.dataset.mese = giornoSuccessivo.mese;
+      cardvuota.dataset.giorno = giornoSuccessivo.giornoNumerico;
       animaIngressoCard(cardvuota, animIndex++);
     }
   }
@@ -467,7 +583,7 @@ function aggiornaValoriHeader(annodiCalendar, mesediCalendar, calendar) {
 }
 
 function gestisciClickDate(card, date) {
-  console.log("devo impostare il valore:", date);
+  //console.log("devo impostare il valore:", date);
   const dataParametro =
     date.anno +
     "-" +
@@ -495,6 +611,7 @@ function gestisciClickDate(card, date) {
   const input1 = calendar.querySelector(".inputHidden1");
   const input1Value = calendar.querySelector(".inputHidden1").value;
   if (isRange) {
+    console.log("al click range vale dragHoverLoader:", draggingRange);
     const input2 = calendar.querySelector(".inputHidden2");
     const input2Value = calendar.querySelector(".inputHidden2").value;
     //Vedo se esiste un selecteDunico e lo levo
@@ -608,6 +725,12 @@ function applicaRangeSelezionato() {
       card.dataset.giorno,
     ).getTime();
 
+    // caso data singola: start e end uguali
+    if (endTime && startTime === endTime && dataCardTime === startTime) {
+      card.classList.add("selectedDateUnica");
+      return;
+    }
+
     if (endTime && dataCardTime > startTime && dataCardTime < endTime) {
       card.classList.add("selectedDate");
     }
@@ -622,15 +745,36 @@ function applicaRangeSelezionato() {
   });
 }
 
-document.addEventListener("pointermove", (e) => {
+function aggiornaRangeDaCardVuota(cardVuota) {
   if (!draggingRange || !draggingEdge) return;
 
-  const el = document.elementFromPoint(e.clientX, e.clientY);
-  const card = el?.closest(".card");
+  const nav = cardVuota.dataset.nav;
 
-  if (!card || !card.dataset.anno) return;
+  const annoCorrente = Number(cardVuota.dataset.annoCorrente);
+  const meseCorrente = Number(cardVuota.dataset.meseCorrente);
 
-  const nuovaData = getDateFromCard(card);
+  if (Number.isNaN(annoCorrente) || Number.isNaN(meseCorrente)) return;
+
+  let nuovaData = null;
+
+  if (nav === "prev") {
+    nuovaData = {
+      anno: annoCorrente,
+      mese: meseCorrente,
+      giornoNumerico: 1,
+    };
+  }
+
+  if (nav === "next") {
+    const ultimoGiorno = new Date(annoCorrente, meseCorrente + 1, 0).getDate();
+
+    nuovaData = {
+      anno: annoCorrente,
+      mese: meseCorrente,
+      giornoNumerico: ultimoGiorno,
+    };
+  }
+
   if (!nuovaData) return;
 
   const nuovaTime = new Date(
@@ -651,22 +795,72 @@ document.addEventListener("pointermove", (e) => {
     endDate.giornoNumerico,
   ).getTime();
 
-  if (draggingEdge === "start") {
-    if (nuovaTime <= endTime) {
-      startDate = nuovaData;
-    }
+  if (draggingEdge === "start" && nuovaTime <= endTime) {
+    startDate = nuovaData;
   }
 
-  if (draggingEdge === "end") {
-    if (nuovaTime >= startTime) {
-      endDate = nuovaData;
-    }
+  if (draggingEdge === "end" && nuovaTime >= startTime) {
+    endDate = nuovaData;
   }
 
   aggiornaInputRange();
   applicaRangeSelezionato();
-});
-document.addEventListener("pointerup", () => {
-  draggingRange = false;
-  draggingEdge = null;
-});
+}
+
+function aggiornaRangeDaNuovaData(nuovaData) {
+  const nuovaTime = new Date(
+    nuovaData.anno,
+    nuovaData.mese,
+    nuovaData.giornoNumerico,
+  ).getTime();
+
+  const startTime = new Date(
+    startDate.anno,
+    startDate.mese,
+    startDate.giornoNumerico,
+  ).getTime();
+
+  const endTime = new Date(
+    endDate.anno,
+    endDate.mese,
+    endDate.giornoNumerico,
+  ).getTime();
+
+  if (draggingEdge === "start" && nuovaTime <= endTime) {
+    startDate = nuovaData;
+  }
+
+  if (draggingEdge === "end" && nuovaTime >= startTime) {
+    endDate = nuovaData;
+  }
+}
+
+document.addEventListener(
+  "pointermove",
+  (e) => {
+    if (!draggingRange || !draggingEdge) return;
+
+    e.preventDefault();
+    dragHaMosso = true;
+
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    const card = el?.closest(".card");
+
+    if (!card) return;
+
+    if (card.classList.contains("cardvuota")) {
+      aggiornaRangeDaCardVuota(card);
+      return;
+    }
+
+    if (!card.dataset.anno) return;
+
+    const nuovaData = getDateFromCard(card);
+    if (!nuovaData) return;
+
+    aggiornaRangeDaNuovaData(nuovaData);
+    aggiornaInputRange();
+    applicaRangeSelezionato();
+  },
+  { passive: false },
+);
