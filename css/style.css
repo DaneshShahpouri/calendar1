@@ -28,6 +28,7 @@ body {
   width: 100%;
   display: flex;
   justify-content: space-evenly;
+  justify-content: center;
   align-items: stretch;
   height: 50px;
   align-content: stretch;
@@ -37,6 +38,7 @@ body {
 ._wrapper-counter-mese * {
   color: inherit;
 }
+
 ._wrapper-counter-mese button._btn {
   background: #f6f6f600;
   color: inherit;
@@ -49,6 +51,10 @@ body {
   border: 1px solid #d9d9d900;
   left: 0px;
   transform: none;
+  opacity: 0.1;
+}
+._wrapper-counter-mese:hover button._btn {
+  opacity: 1;
 }
 ._wrapper-counter-mese button._btn:hover {
   background: linear-gradient(45deg, #dbdbdb, #edebeb);
@@ -74,6 +80,7 @@ body {
 }
 ._wrapper-counter-mese ._center {
   width: calc(100% - 100px);
+  width: 172px;
 }
 
 /*inizio  fa-spinner */
@@ -151,7 +158,13 @@ body {
 .wrapper-centrale_meseanno .meseCalendar.hover {
   /* text-shadow: var(--text-border); */
   color: rgb(133, 133, 133);
+  color: var(--background-card-selected);
   cursor: pointer;
+  text-shadow:
+    1px 0 0 var(--colore_header),
+    -1px 0 0 var(--colore_header),
+    0 1px 0 var(--colore_header),
+    0 -1px 0 var(--colore_header);
 }
 
 .wrapper-centrale .meseCalendar {
@@ -221,6 +234,7 @@ body {
   overflow: hidden;
 }
 
+/* BTN MENU */
 .container-calendar .topside.open {
   height: calc(100% - 54px);
 
@@ -237,7 +251,7 @@ body {
   display: flex;
   position: absolute;
   top: 4px;
-  left: 62px;
+  left: 2px;
   width: 50px;
   height: 45px;
   align-content: center;
@@ -269,6 +283,57 @@ body {
   transition: all 0.4s;
 }
 
+/* BTN RESET DATA */
+.container-calendar .topside_resetDateDiv {
+  display: flex;
+  position: absolute;
+  top: 4px;
+  right: 2px;
+  width: 50px;
+  height: 45px;
+  align-content: center;
+  justify-content: center;
+  align-items: center;
+  background: #81818100;
+  border: 0px solid #ffffff00;
+  padding: 0;
+  color: #9a9a9a;
+  transition: all 0.4s;
+}
+.container-calendar .topside_resetDateDiv :hover {
+  color: black;
+}
+.container-calendar .topside_resetDateDiv button {
+  width: 100%;
+  height: 100%;
+  background: #80808000;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+}
+.container-calendar .topside_resetDateDiv button.selected {
+  color: #ffffff;
+  text-shadow: 0px 0px 10px #003283;
+}
+.container-calendar .topside_resetDateDiv button > i {
+  color: inherit;
+  transition: all 0.4s;
+}
+
+.container-calendar .topside_resetDateDiv {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+  transition: all 0.25s ease;
+}
+
+.container-calendar .btn-gotodate.hidden,
+.container-calendar .topside_resetDateDiv.hidden {
+  opacity: 0;
+  transform: translateY(-10px);
+  pointer-events: none; /* importantissimo */
+}
+
 /* CALENDAR EFFETTIVO - MAIN*/
 .container-calendar .calendar_wrapper_main {
   width: 100%;
@@ -291,8 +356,8 @@ body {
   height: 50px;
   font-size: 0.8em;
   text-transform: capitalize;
-  background: #00000008;
-  color: #9e9e9e;
+  background: var(--colore_header_sfondo);
+  color: var(--colore_header);
   border: 1px solid #ffffff00;
   font-weight: 100;
   text-shadow: 0px 0px 9px #ffffff;
@@ -311,14 +376,68 @@ body {
   width: 100%;
   height: 100%;
   display: flex;
-  justify-content: center;
+  min-height: 68px;
+  justify-content: space-around;
   align-items: center;
-  /* border: 1px solid rgb(115, 0, 255); */
   padding: 0.4em;
-
-  height: 40px;
+  position: relative;
+}
+.container-calendar .footer_calendar .footer_calendar_input1,
+.container-calendar .footer_calendar .footer_calendar_input2 {
+  width: 50%;
+}
+.container-calendar .footer_calendar .footer_calendar_input2.hidden {
+  display: none;
 }
 
+.container-calendar .footer_calendar .wrapper-date {
+  display: flex;
+  gap: 5px;
+  font-size: 14px;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  opacity: 0;
+  transform: translateY(10px);
+  animation: fadeSlideIn 0.4s ease forwards;
+}
+.container-calendar .footer_calendar .wrapper-date .day {
+  font-size: 2.4em;
+  font-weight: 100;
+  display: block;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 0.3em;
+  color: #353535;
+}
+.container-calendar .footer_calendar .wrapper-date .wrapper-anno {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.container-calendar .footer_calendar .wrapper-date .mese {
+  font-size: 0.9em;
+  font-weight: 100;
+  margin-bottom: -4px;
+  text-transform: capitalize;
+  color: #747474;
+}
+.container-calendar .footer_calendar .wrapper-date .anno {
+  font-size: 1em;
+  font-weight: 900;
+}
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+/* fine CALENDAR EFFETTIVO - FOOTER*/
 .option_hoverCambioAnno {
   border: 1px solid #80808073;
   height: 30px;
@@ -331,25 +450,66 @@ body {
 }
 
 /* //LOADER CURSORE MESE DOPO E PRIMA  */
+
 .drag-hover-loader {
   position: fixed;
-  width: 44px;
-  height: 6px;
-  background: #00000018;
+  min-width: 96px;
+  height: 15px;
+  padding: 0 10px;
+  background: var(--colore_loader_sfondo);
+  color: var(--colore_loader);
+  border: 1px solid color-mix(in srgb, var(--colore_loader) 35%, transparent);
   border-radius: 999px;
   overflow: hidden;
   pointer-events: none;
   z-index: 99999;
-  transform: translate(12px, 12px);
+  transform: translate(14px, 14px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow:
+    0 8px 22px rgba(0, 0, 0, 0.25),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+
+  backdrop-filter: blur(8px);
+}
+
+.drag-hover-loader::before {
+  content: "";
+  position: relative;
+  z-index: 2;
+  white-space: nowrap;
 }
 
 .drag-hover-loader::after {
   content: "";
-  display: block;
+  position: absolute;
+  inset: 0;
   width: 0%;
-  height: 100%;
-  background: #222;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--colore_loader) 22%, transparent)
+  );
   animation: dragHoverLoad 1s linear forwards;
+}
+.drag-hover-loader.next::before {
+  content: "\f061"; /* arrow-right */
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  color: inherit;
+}
+
+.drag-hover-loader.prev::before {
+  content: "\f060"; /* arrow-left */
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  color: inherit;
 }
 
 @keyframes dragHoverLoad {
@@ -359,4 +519,112 @@ body {
   to {
     width: 100%;
   }
+}
+
+.drag-hover-loader {
+  animation: loaderPop 140ms ease-out;
+}
+
+@keyframes loaderPop {
+  from {
+    opacity: 0;
+    transform: translate(14px, 14px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translate(14px, 14px) scale(1);
+  }
+}
+
+/* FINE LOADER MESE NAV CON MOUSE */
+
+.clear-date {
+  position: absolute;
+  top: -2px;
+  right: calc(50% - 70px);
+  opacity: 1;
+  width: 20px;
+  height: 20px;
+  background: #de9595;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.7em;
+  font-weight: 100;
+}
+
+.clear-date:hover {
+  background: #eb7c7c;
+}
+.btn-gotodate {
+  position: absolute;
+  top: 10px;
+  right: calc(50% - 90px);
+  opacity: 1;
+  width: 20px;
+  height: 20px;
+  background: #6e6e6e33;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #706e6e;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.7em;
+  border: none;
+  font-weight: 100;
+}
+
+.btn-gotodate:hover {
+  background: #eb7c7c00;
+}
+.wrapper-date {
+  position: relative;
+}
+
+.wrapper_input_click_change1,
+.wrapper_input_click_change2 {
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  width: calc(100% + 10px);
+  height: calc(100% + 10px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  background: #ffffff;
+  z-index: 100;
+  padding-bottom: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.wrapper_input_click_change1 > .wrapper_input,
+.wrapper_input_click_change2 > .wrapper_input {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.wrapper_input_click_change1 > .wrapper_input > label,
+.wrapper_input_click_change2 > .wrapper_input > label {
+  font-size: 11px;
+  text-transform: lowercase;
+  font-weight: 100;
+  text-align: left;
+  width: 100%;
+  padding-left: 15px;
+}
+.wrapper_input_click_change1 > .wrapper_input > input,
+.wrapper_input_click_change2 > .wrapper_input > input {
+  width: 100%;
+  height: 100%;
+  padding: 0.5em 2.1em;
+  border: 1px solid #e1e1e1;
+  border-radius: 10px;
 }

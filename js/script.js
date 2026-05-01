@@ -1,8 +1,8 @@
 document.addEventListener("DOMContentLoaded", function () {
   //console.log("DOM pronto!");
   //QUESTA è LA DATA DA CUI PARTE IL CALENDARIO (data di oggi di default - imposta mese anno calendario ricerca  e selezione se presente)
-  var dataDiRiferimento = creaData_calendar();
-
+  dataDiRiferimento = creaData_calendar();
+  applicaCalendarTheme(); //applico Themi css
   //console.log("dataDiRiferimento: ", dataDiRiferimento);
   //creare Mese e Anno per far partire Calendar
 
@@ -113,10 +113,27 @@ document.addEventListener("DOMContentLoaded", function () {
         inputChecked,
       );
 
+      // Option colore selezione
+      const option_coloreSelezione = creaDiveAppendi(
+        "option_themeColor",
+        topSide_containercalendar,
+        `
+          <label for="color_selected">Colore selezione</label>
+          <input type="color" id="color_selected" value="#4ea7ff">
+        `,
+      );
+
+      //BTN EFFETTIVO MENU
       const topSide_containercalendar_openbtn = creaDiveAppendi(
         "topside_closeDiv",
         containerCalendar,
         '<button class="_btn" id="closed_btn_topbar"><i class="fa-solid fa-gear"></i></button>',
+      );
+      //BTN EFFETTIVO RESET DATA
+      const topSide_containercalendar_resetDatabtn = creaDiveAppendi(
+        "topside_resetDateDiv",
+        containerCalendar,
+        '<button class="_btn" id="resetDate_btn_topbar"><i class="fa-solid fa-calendar"></i></button>',
       );
 
       //CREAZIONE GIORNI
@@ -156,7 +173,7 @@ document.addEventListener("DOMContentLoaded", function () {
           "date2",
         );
 
-        console.log("inputHiddenDate2: ", inputHiddenDate2);
+        //console.log("inputHiddenDate2: ", inputHiddenDate2);
       }
       //-wrapper delle card
       const mid_calendariocentrale = creaDiveAppendi(
@@ -271,6 +288,7 @@ document.addEventListener("DOMContentLoaded", function () {
         "#checkbox_hoverCambioAnno",
       );
 
+      //BTN menu
       const closed_btn_topbar =
         topSide_containercalendar_openbtn.querySelector("#closed_btn_topbar");
 
@@ -288,15 +306,216 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       });
 
+      //BTN menu
+      const btn_reset_date =
+        topSide_containercalendar_resetDatabtn.querySelector(
+          "#resetDate_btn_topbar",
+        );
+
+      btn_reset_date.addEventListener("click", () => {
+        console.log("clicco resetta data");
+        const mesedioggi = new Date().getMonth();
+        const annodioggi = new Date().getFullYear();
+        popolaCalendarConGiorni(annodioggi, mesedioggi, mid_calendariocentrale);
+      });
+
+      //THEME
+      const colorSelected =
+        topSide_containercalendar.querySelector("#color_selected");
+
+      colorSelected.addEventListener("input", (e) => {
+        applicaTemaDaColore(e.target.value);
+      });
+
       //Botton Side - Ui con input date? vediamo
       const footer_calendar = creaDiveAppendi(
         "footer_calendar",
         containerCalendar,
       );
       const input1_footer_calendar = creaDiveAppendi(
-        "footer_calendar",
-        containerCalendar,
+        "footer_calendar_input1",
+        footer_calendar,
       );
+      const wrapper1 = creaDiveAppendi(
+        "wrapper-date",
+        input1_footer_calendar,
+        `<span class="day"></span>
+        <div class="wrapper-anno">
+        <span class="mese"></span>
+        <span class="anno"></span>
+        </div>
+        `,
+      );
+
+      const input2_footer_calendar = creaDiveAppendi(
+        "footer_calendar_input2",
+        footer_calendar,
+      );
+      const wrapper2 = creaDiveAppendi(
+        "wrapper-date",
+        input2_footer_calendar,
+        `<span class="day"></span>
+        <div class="wrapper-anno">
+        <span class="mese"></span>
+        <span class="anno"></span>
+        </div>
+        `,
+      );
+
+      //CAMBIA DATA AL CLICK 1
+      input1_footer_calendar.addEventListener("click", function (e) {
+        e.stopPropagation();
+        console.log("click_footer1");
+
+        let wrapper_date =
+          input1_footer_calendar.querySelector(".wrapper-date");
+        let input1 = calendar.querySelector(".inputHidden1");
+        let input1Value = calendar.querySelector(".inputHidden1").value;
+        let innerHTML = `
+            <div class="wrapper_input">
+              <label for="input1_changeclick">Cambia Data</label>
+              <input class="fake_changeinput input1" name="input1_changeclick" id="fake_changeinput_1"  type="date" value="${input1Value}"> 
+            </div>
+            `;
+
+        if (!input1PerChangeAlClick || !input1 || input1 == "") {
+          creaDiveAppendi(
+            "wrapper_input_click_change1",
+            wrapper_date,
+            innerHTML,
+          );
+          let input_perChange = input1_footer_calendar.querySelector(
+            ".fake_changeinput.input1",
+          );
+
+          input_perChange.focus();
+          input_perChange.addEventListener("click", function (e) {
+            e.stopPropagation();
+            console.log("posso cliccare sull'input");
+          });
+
+          input_perChange.addEventListener("change", function (e) {
+            const val = e.target.value;
+
+            const dataJS = parseDateInputToDate(val);
+            const nuovaData = creaData_calendar(dataJS);
+
+            const nuovaTime = calendarDataToTime(nuovaData);
+            const endTime = calendarDataToTime(endDate);
+
+            if (nuovaTime <= endTime) {
+              startDate = nuovaData;
+
+              aggiornaInputRange();
+              // console.log("nuovaData.anno", nuovaData.anno);
+              // console.log("nuovaData.mese", nuovaData.mese);
+              if (
+                nuovaData.anno !== annodiCalendar ||
+                nuovaData.mese !== mesediCalendar
+              ) {
+                vaiAlMeseDellaData(nuovaData, "");
+              } else {
+                applicaRangeSelezionato();
+              }
+            }
+          });
+
+          input1PerChangeAlClick = true;
+        } else {
+          input1PerChangeAlClick = null;
+          aggiornaInputRange();
+          applicaRangeSelezionato();
+          document
+            .querySelectorAll(".wrapper_input_click_change1")
+            .forEach((el) => {
+              el.remove();
+            });
+        }
+      });
+
+      //CAMBIA DATA AL CLICK 2
+      input2_footer_calendar.addEventListener("click", function (e) {
+        e.stopPropagation();
+        console.log("click_footer2");
+
+        let wrapper_date =
+          input2_footer_calendar.querySelector(".wrapper-date");
+        let input2 = calendar.querySelector(".inputHidden2");
+        let input2Value = calendar.querySelector(".inputHidden2").value;
+        let innerHTML = `
+            <div class="wrapper_input">
+              <label for="input2_changeclick">Cambia Data</label>
+              <input class="fake_changeinput input2" name="input2_changeclick" id="fake_changeinput_2"  type="date" value="${input2Value}"> 
+            </div>
+            `;
+
+        if (!input2PerChangeAlClick || !input2 || input2 == "") {
+          creaDiveAppendi(
+            "wrapper_input_click_change2",
+            wrapper_date,
+            innerHTML,
+          );
+          let input_perChange2 = input2_footer_calendar.querySelector(
+            ".fake_changeinput.input2",
+          );
+
+          input_perChange2.focus();
+          input_perChange2.addEventListener("click", function (e) {
+            e.stopPropagation();
+            console.log("posso cliccare sull'input");
+          });
+
+          input_perChange2.addEventListener("change", function (e) {
+            const val = e.target.value;
+
+            const dataJS = parseDateInputToDate(val);
+            const nuovaData = creaData_calendar(dataJS);
+
+            const nuovaTime = calendarDataToTime(nuovaData);
+            const startTime = calendarDataToTime(startDate);
+
+            if (nuovaTime >= startTime) {
+              console.log("posso impostarla");
+
+              endDate = nuovaData;
+
+              aggiornaInputRange();
+              // console.log("nuovaData.anno", nuovaData.anno);
+              // console.log("nuovaData.mese", nuovaData.mese);
+              if (
+                nuovaData.anno !== annodiCalendar ||
+                nuovaData.mese !== mesediCalendar
+              ) {
+                vaiAlMeseDellaData(nuovaData, "");
+              } else {
+                applicaRangeSelezionato();
+              }
+            } else {
+              input2PerChangeAlClick = null;
+            }
+          });
+        } else {
+          input2PerChangeAlClick = null;
+          aggiornaInputRange();
+          applicaRangeSelezionato();
+          document
+            .querySelectorAll(".wrapper_input_click_change2")
+            .forEach((el) => {
+              el.remove();
+            });
+        }
+      });
+
+      function vaiAlMeseDellaData(data, wrapper) {
+        annodiCalendar = data.anno;
+        mesediCalendar = data.mese;
+        if (!wrapper || wrapper == "") {
+          wrapper = calendar.querySelector(".mid_main");
+        }
+        console.log(wrapper);
+
+        popolaCalendarConGiorni(annodiCalendar, mesediCalendar, wrapper);
+      }
     }, 200);
 
     //Funzioen che al click di fuori certi elementi mi faccia  chiudere le schede aperte
@@ -313,7 +532,8 @@ document.addEventListener("DOMContentLoaded", function () {
       const mid_calendariocentrale = calendar.querySelector(".mid_main");
 
       clearTimeout(dragHoverTimer);
-      mostraDragHoverLoader(e);
+      const direzione = cardVuota.dataset.nav; // "prev" oppure "next"
+      mostraDragHoverLoader(e, direzione);
 
       dragHoverTimer = setTimeout(() => {
         if (!draggingRange || !draggingEdge) {
@@ -355,6 +575,43 @@ document.addEventListener("DOMContentLoaded", function () {
 
     draggingRange = false;
     draggingEdge = null;
+
+    // 👉 IMPORTANTISSIMO
+    setTimeout(() => {
+      ignoraClickPostDrag = false;
+    }, 0);
+  });
+
+  //CHIUDI ELEMENTI AL CLICK OVUNQUE
+  const eccezioni = [
+    calendar,
+    document.querySelector(".topside"),
+    document.querySelector(".wrapper_input_click_change1"),
+    document.querySelector(".wrapper_input_click_change2"),
+  ];
+  document.addEventListener("click", (e) => {
+    const clickDentroEccezioni = eccezioni.some((el) => {
+      return el && el.contains(e.target);
+    });
+
+    if (!clickDentroEccezioni) {
+      console.log("click sul dom");
+      input1PerChangeAlClick = null;
+      aggiornaInputRange();
+      applicaRangeSelezionato();
+      document
+        .querySelectorAll(".wrapper_input_click_change1")
+        .forEach((el) => {
+          el.remove();
+        });
+      document
+        .querySelectorAll(".wrapper_input_click_change2")
+        .forEach((el) => {
+          el.remove();
+        });
+
+      document.querySelector(".topside.open")?.classList.remove("open");
+    }
   });
 
   function cambiaMeseDuranteDrag(offset, mid_calendariocentrale) {
@@ -375,11 +632,18 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
+//Funzione per popolare il wrapper del calendario con i giorni CARD.
 function popolaCalendarConGiorni(annodiCalendar, mesediCalendar, wrapper) {
   let giorniDelMese = getGiorniDelMese_calendar(annodiCalendar, mesediCalendar);
   var animIndex = 0;
   wrapper.innerHTML = "";
   calendar.classList.add("loader");
+  clearInterval(checkSelected);
+  // console.log("interromposetCheck");
+  checkSelected = setTimeout(() => {
+    //console.log("partecheck di", annodiCalendar, mesediCalendar);
+    checkBottoniNavDate(annodiCalendar, mesediCalendar, wrapper);
+  }, 500);
 
   //Crea Elementi in base a giorni (settimana)
   for (let g = 0; g < 7; g++) {
@@ -447,6 +711,9 @@ function popolaCalendarConGiorni(annodiCalendar, mesediCalendar, wrapper) {
   // ciclo per craere card calendario
   //----------------------------------------------------------------
   if (!isdebug_calendar) {
+    const oggiConfronto = new Date().getDate();
+    const meseConfronto = new Date().getMonth();
+    const annoConfronto = new Date().getFullYear();
     for (let i = 0; i < giorniDelMese.length; i++) {
       const element = giorniDelMese[i];
 
@@ -471,6 +738,14 @@ function popolaCalendarConGiorni(annodiCalendar, mesediCalendar, wrapper) {
       card.dataset.mese = giornotradotto.mese;
       card.dataset.giorno = giornotradotto.giornoNumerico;
 
+      if (
+        oggiConfronto == giornotradotto?.giornoNumerico &&
+        meseConfronto == giornotradotto?.mese &&
+        annoConfronto == giornotradotto?.anno
+      ) {
+        card.classList.add("today");
+      }
+
       const settimana = [
         ["d", "domenica"],
         ["l", "lunedi"],
@@ -487,41 +762,17 @@ function popolaCalendarConGiorni(annodiCalendar, mesediCalendar, wrapper) {
         ? card.classList.add("feriale")
         : "";
 
-      card.addEventListener("pointerdown", (e) => {
-        if (!isRange || !startDate || !endDate) return;
-
-        if (card.classList.contains("selectedFirstDEF")) {
-          draggingRange = true;
-          draggingEdge = "start";
-          e.preventDefault();
-        }
-
-        if (card.classList.contains("selectedEnd")) {
-          draggingRange = true;
-          draggingEdge = "end";
-          e.preventDefault();
-        }
-      });
-
+      abilitaDragRange(card, giornotradotto);
       card.addEventListener("click", (e) => {
         e.stopPropagation();
-
-        if (dragIniziato) {
-          if (dragHaMosso) {
-            // era un drag vero: non fare la logica click normale
-            dragIniziato = false;
-            dragHaMosso = false;
-            return;
-          }
-
-          // era solo pointerdown + pointerup senza movimento: allora è click vero
-          dragIniziato = false;
-          dragHaMosso = false;
+        if (ignoraClickPostDrag) {
+          console.log("ignoro click");
+          ignoraClickPostDrag = false;
+          return;
         }
 
         gestisciClickDate(card, giornotradotto);
       });
-      abilitaDragRange(card, giornotradotto);
     }
   }
 
@@ -564,6 +815,7 @@ function popolaCalendarConGiorni(annodiCalendar, mesediCalendar, wrapper) {
       cardvuota.dataset.anno = giornoSuccessivo.anno;
       cardvuota.dataset.mese = giornoSuccessivo.mese;
       cardvuota.dataset.giorno = giornoSuccessivo.giornoNumerico;
+
       animaIngressoCard(cardvuota, animIndex++);
     }
   }
@@ -574,6 +826,8 @@ function popolaCalendarConGiorni(annodiCalendar, mesediCalendar, wrapper) {
   //fine Crea Elementi in base a giorni
 }
 
+// Aggiorna il testo dell’header del calendario con anno e mese correnti,
+// mantenendo sincronizzata la UI dopo cambi mese, reset o navigazione.
 function aggiornaValoriHeader(annodiCalendar, mesediCalendar, calendar) {
   calendar.querySelector(".wrapper-centrale .annoCalendar").innerHTML =
     annodiCalendar;
@@ -582,6 +836,8 @@ function aggiornaValoriHeader(annodiCalendar, mesediCalendar, calendar) {
     mesiArray[mesediCalendar];
 }
 
+// Gestisce il click su una card giorno: imposta, completa o resetta la selezione
+// e aggiorna classi grafiche/input in base alla modalità singola o range.
 function gestisciClickDate(card, date) {
   //console.log("devo impostare il valore:", date);
   const dataParametro =
@@ -611,7 +867,7 @@ function gestisciClickDate(card, date) {
   const input1 = calendar.querySelector(".inputHidden1");
   const input1Value = calendar.querySelector(".inputHidden1").value;
   if (isRange) {
-    console.log("al click range vale dragHoverLoader:", draggingRange);
+    //console.log("al click range vale dragHoverLoader:", draggingRange);
     const input2 = calendar.querySelector(".inputHidden2");
     const input2Value = calendar.querySelector(".inputHidden2").value;
     //Vedo se esiste un selecteDunico e lo levo
@@ -619,48 +875,45 @@ function gestisciClickDate(card, date) {
     calendar.querySelectorAll(".card").forEach((card_inner) => {
       if (card_inner.classList.contains("selectedDateUnica")) {
         card_inner.classList.remove("selectedDateUnica");
-        console.log("trovo una card selezionata svuoto");
-        input1.value = "";
+        //console.log("trovo una card selezionata svuoto");
         startDate = null;
-        input2.value = "";
         endDate = null;
         TrovoselecteDunico = true;
+        aggiornaInputRange();
       }
     });
 
     if (TrovoselecteDunico) {
       console.log("rimuovo click");
-      input1.value = "";
       startDate = null;
-      input2.value = "";
       endDate = null;
+      aggiornaInputRange();
     } else if (startDate && startDateParametro == dataParametro) {
       rimuoviSelectDaCard();
-      console.log("primo click");
-      input1.value = dataParametro;
+      //console.log("primo click");
       startDate = date;
-      input2.value = dataParametro;
       endDate = date;
+      aggiornaInputRange();
       card.classList.add("selectedDateUnica");
     } else if (!startDate || endDate || startDateParametro > dataParametro) {
-      if (!startDate || startDateParametro > dataParametro) {
+      if (!startDate || (startDateParametro > dataParametro && endDate)) {
         rimuoviSelectDaCard();
-        console.log("primo click");
-        input1.value = dataParametro;
+        //console.log("click prima di data inizio");
         startDate = date;
+        endDate = null;
         card.classList.add("selectedFirst");
+        aggiornaInputRange();
       } else {
         console.log("terzo click svuoto");
-        input1.value = "";
         startDate = null;
-        input2.value = "";
         endDate = null;
+        aggiornaInputRange();
         rimuoviSelectDaCard();
       }
     } else if (startDate) {
-      console.log("secondo click");
-      input2.value = dataParametro;
+      //console.log("secondo click");
       endDate = date;
+      aggiornaInputRange();
       card.classList.add("selectedEnd");
       let cardFirst_temporanea = calendar.querySelector(".selectedFirst");
       cardFirst_temporanea?.classList.remove("selectedFirst");
@@ -668,19 +921,20 @@ function gestisciClickDate(card, date) {
       applicaRangeSelezionato();
     }
 
-    console.log("Carico valore data 2: ", input2.value);
-    console.log("endate vale: ", endDate);
+    //console.log("Carico valore data 2: ", input2.value);
+    //console.log("endate vale: ", endDate);
   } else {
     console.log("primo click");
-    input1.value = dataParametro;
     card.classList.add("selectedDateUnica");
     startDate = date;
+    aggiornaInputRange();
   }
 
-  console.log("Carico valore data 1: ", input1.value);
-  console.log("startDate vale: ", startDate);
+  //console.log("Carico valore data 1: ", input1.value);
+  //console.log("startDate vale: ", startDate);
 }
 
+//RIMUOVE classe selectionDate e altre da Card
 function rimuoviSelectDaCard() {
   calendar.querySelectorAll(".card").forEach((card) => {
     card.classList.contains("selectedDate")
@@ -701,10 +955,10 @@ function rimuoviSelectDaCard() {
   });
 }
 
+//METTE classe selectionDate e altre da Card
 function applicaRangeSelezionato() {
-  if (!startDate) return;
-
   rimuoviSelectDaCard();
+  if (!startDate) return;
 
   const startTime = new Date(
     startDate.anno,
@@ -745,6 +999,8 @@ function applicaRangeSelezionato() {
   });
 }
 
+// Gestisce il drag del range su card dei mesi adiacenti (vuote) senza data,
+// aggiornando startDate o endDate al limite del mese corrente e mantenendo coerenza del range.
 function aggiornaRangeDaCardVuota(cardVuota) {
   if (!draggingRange || !draggingEdge) return;
 
@@ -807,6 +1063,8 @@ function aggiornaRangeDaCardVuota(cardVuota) {
   applicaRangeSelezionato();
 }
 
+// Aggiorna startDate o endDate durante il drag confrontando la nuova data,
+// mantenendo il range valido (start ≤ end) in base al lato trascinato.
 function aggiornaRangeDaNuovaData(nuovaData) {
   const nuovaTime = new Date(
     nuovaData.anno,
@@ -835,13 +1093,59 @@ function aggiornaRangeDaNuovaData(nuovaData) {
   }
 }
 
+// Aggiorna la visibilità dei bottoni di navigazione rapida:
+// nasconde "torna a oggi" se sei già nel mese corrente e nasconde i bottoni start/end se la data è già visibile.
+function checkBottoniNavDate(annodiCalendar, mesediCalendar, wrapper) {
+  if (annodiCalendar == null || mesediCalendar == null) {
+    return;
+  }
+  //Logica per gestire btn reset devi vedere se ka data è quella di oggi
+  const datediOggi = new Date();
+  const giornodioggi = datediOggi.getDate();
+  const mesedioggi = datediOggi.getMonth();
+  const annodioggi = datediOggi.getFullYear();
+  const btn_resetCalendarData = calendar.querySelector(".topside_resetDateDiv");
+
+  if (mesedioggi === mesediCalendar && annodioggi === annodiCalendar) {
+    if (!btn_resetCalendarData.classList.contains("hidden")) {
+      btn_resetCalendarData.classList.add("hidden");
+    }
+  } else {
+    btn_resetCalendarData.classList.remove("hidden");
+  }
+
+  const btn_resetCalendarData_data1 = calendar.querySelector(
+    ".btn-gotodate.date1",
+  );
+  const btn_resetCalendarData_data2 = calendar.querySelector(
+    ".btn-gotodate.date2",
+  );
+
+  if (btn_resetCalendarData_data1 && startDate) {
+    if (mesediCalendar == startDate.mese && startDate.anno == annodiCalendar) {
+      //console.log("trovo valore 1", startDate.mese + " - " + startDate.anno);
+      btn_resetCalendarData_data1.classList.add("hidden");
+    } else {
+      btn_resetCalendarData_data1.classList.remove("hidden");
+    }
+  }
+
+  if (btn_resetCalendarData_data2 && endDate) {
+    if (mesediCalendar == endDate.mese && endDate.anno == annodiCalendar) {
+      btn_resetCalendarData_data2.classList.add("hidden");
+    } else {
+      btn_resetCalendarData_data2.classList.remove("hidden");
+    }
+  }
+}
+
 document.addEventListener(
   "pointermove",
   (e) => {
     if (!draggingRange || !draggingEdge) return;
 
     e.preventDefault();
-    dragHaMosso = true;
+    ignoraClickPostDrag = true;
 
     const el = document.elementFromPoint(e.clientX, e.clientY);
     const card = el?.closest(".card");

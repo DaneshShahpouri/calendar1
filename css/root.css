@@ -1,9 +1,45 @@
 :root {
   --text-border-color: rgba(237, 60, 60, 0.133);
-  --backgrouldselected: rgb(218, 196, 0);
   --text-border:
     1px 0 0 var(--text-border-color), 0px 0 0 var(--text-border-color),
     0 1px 0 var(--text-border-color), 0 0px 0 var(--text-border-color),
     1px 1px 0 var(--text-border-color), 0px 0px 0 var(--text-border-color),
     1px 0px 0 var(--text-border-color), 0px 1px 0 var(--text-border-color);
+
+  --bordercolor_card: #f5f5f500;
+  --background-card: transparent;
+  --borderSelected: rgb(218, 196, 0);
+  --borderSelected: rgb(0, 164, 218);
+  --borderSelected: linear-gradient(45deg, #5aa6dd, #a7e6ff);
+  --borderSelected: linear-gradient(45deg, #4ea7ff, #a7fbff6e);
+  --background-card-selected_def-hover: #4382b4;
+  --background-card-selected_def-hover: linear-gradient(
+    45deg,
+    #6db8ee,
+    #c7efff
+  );
+  --borderSelected_border: rgb(255, 255, 255);
+  --borderSelected_border_prov: rgba(255, 255, 255, 0);
+
+  --background-card-selected_def: linear-gradient(45deg, #035eba, #8eb7e0);
+
+  --background-card-selected_prov: #71d8ff61;
+
+  --background-card-selected: #9cf1ff36;
+  --background-card-selected: #28b4ff1c;
+
+  --bordercolor_card-vuote: #f5f5f500;
+  --background-card-vuote: #bababa12;
+
+  --background-card-vuota-selected: #00b7ff12;
+  --background-card-vuota-selected: #9ee4ff12;
+  --shadow-card-vuota-selected: #ffffff3b;
+  --background-card-vuota-selected_def: #00aeff26;
+  --shadow-selected: #80808000;
+
+  --colore_loader: #f1f6ff;
+  --colore_loader_sfondo: #00000099;
+
+  --colore_header: #9e9e9e;
+  --colore_header_sfondo: #00000008;
 }

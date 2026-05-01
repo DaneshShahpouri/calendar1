@@ -1,4 +1,9 @@
+var mostraDebugFunzioni_start = false;
 // VARIABILI DI SUPPORTO Funzioni
+var input1PerChangeAlClick = null; //input per click su data
+var input2PerChangeAlClick = null; //input per click su data
+
+var dataDiRiferimento = null;
 var isRange = true;
 var isdebug_calendar = false;
 var topbarOpen = false;
@@ -6,6 +11,7 @@ var abilitaHoverPerCambioAnno = true;
 var stop_Genera_Calendario = false;
 var startDate = null;
 var endDate = null;
+var checkSelected = null;
 
 let dragHoverTimer = null;
 let isDragging = false;
@@ -14,11 +20,10 @@ let dragMode = null;
 let draggingRange = false;
 let draggingEdge = null;
 let dragHoverLoader = null; //loadermouse per mesi navigazibne
-let dragIniziato = false;
-let dragHaMosso = false;
+let ignoraClickPostDrag = false;
 
 var creaCardRimanenti = true;
-var animaIngressoCard = true; //anima card effetto ingresso
+var abilitaAnimazioneIngressoCard = true; //anima card effetto ingresso
 
 const calendar = document.getElementById("calendar");
 const mesiArray = [
@@ -44,3 +49,11 @@ const giorniSettimanaArray = [
   "venerdì",
   "sabato",
 ];
+
+/*THEMI CALENDARIO CSS */
+const CALENDAR_THEME = {
+  "--bordercolor_card": "#f5f5f500",
+  "--background-card": "transparent",
+  "--bordercolor_card-vuote": "#f5f5f500",
+  "--background-card-vuote": "#bababa12",
+};

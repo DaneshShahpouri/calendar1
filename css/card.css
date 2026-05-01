@@ -9,27 +9,49 @@
   font-weight: 100;
   font-size: 13px;
   text-transform: capitalize;
-  border: 1px solid #bababa12;
-  background-color: #f5f5f500;
+  border: 1px solid var(--bordercolor_card);
+  background-color: var(--background-card);
   z-index: 1;
   padding: auto;
   transition:
     border-color 0s,
-    background 0.3s,
-    padding 0.3s,
+    background 0s,
+    padding 0s,
     box-shadow 0.3s,
-    border-radius 0.2s;
+    border-radius 0s;
 
   cursor: pointer;
   padding: 0.2em 0.4em;
+  margin-bottom: 3px;
 
   -webkit-user-select: none;
   -ms-user-select: none;
   user-select: none;
 }
+.medium .container-calendar .calendar_wrapper_main .mid_main .card {
+  min-height: 75px;
+}
+.large .container-calendar .calendar_wrapper_main .mid_main .card {
+  min-height: 90px;
+}
 
 .container-calendar .calendar_wrapper_main .mid_main .card.feriale {
   /* color: red; */
+}
+.container-calendar .calendar_wrapper_main .mid_main .card.today {
+  position: relative; /* fondamentale */
+}
+
+.container-calendar .calendar_wrapper_main .mid_main .card.today::after {
+  content: "\f073";
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  position: absolute;
+  top: 3px;
+  right: 7px;
+  font-size: 14px;
+  color: #00000061;
+  text-shadow: 0px 0px 2px white;
 }
 .container-calendar .calendar_wrapper_main .mid_main .card.domenica {
   color: rgb(216, 0, 0);
@@ -38,12 +60,13 @@
 
 .container-calendar .calendar_wrapper_main .mid_main .card.selectedFirst,
 .container-calendar .calendar_wrapper_main .mid_main .card.selectedFirst:hover {
-  background: #ffd9001d;
-  border-radius: 37px 0px 0px 37px;
+  background: var(--background-card-selected_prov);
+  border-radius: 12px 0px 0px 12px;
+  border-radius: 12px;
   padding-left: 1em;
   padding-bottom: 0.8em;
-  border: 2px solid var(--BackgrouldSelected);
-  border-right: 0px;
+  border: 2px solid var(--borderSelected_border_prov);
+
   font-size: 15px;
 }
 
@@ -52,57 +75,120 @@
   .calendar_wrapper_main
   .mid_main
   .card.selectedFirstDEF:hover {
-  background: #ffd7007a;
-  border-radius: 37px 0px 0px 37px;
+  background: var(--background-card-selected_def);
+  background: var(--borderSelected);
+  color: white;
+  font-weight: 900;
+  font-size: 1.1em;
+  border-radius: 12px 0px 0px 12px;
   padding-left: 1em;
   padding-bottom: 0.8em;
-  border: 2px solid var(--BackgrouldSelected);
+  border: 2px solid var(--borderSelected_border);
   border-right: 0px;
   font-size: 15px;
-  box-shadow: 1px 1px 5px #80808052;
+  box-shadow: 1px 1px 5px var(--shadow-selected);
+  text-shadow: 0px 0px 5px #000000ad;
 }
 .container-calendar .calendar_wrapper_main .mid_main .card.selectedEnd,
 .container-calendar .calendar_wrapper_main .mid_main .card.selectedEnd:hover {
-  background: #ffd7007a;
-  border-radius: 0px 37px 37px 0px;
+  background: var(--background-card-selected_def);
+  background: var(--borderSelected);
+  color: white;
+  font-weight: 900;
+  font-size: 1.1em;
+  border-radius: 0px 12px 12px 0px;
   padding-left: 1em;
   padding-bottom: 0.8em;
-  border: 2px solid var(--BackgrouldSelected);
+  border: 2px solid var(--borderSelected_border);
   border-left: 0px;
   font-size: 15px;
-  box-shadow: 1px 1px 5px #80808052;
+  box-shadow: 1px 1px 5px var(--shadow-selected);
+  text-shadow: 0px 0px 5px #000000ad;
 }
 .container-calendar .calendar_wrapper_main .mid_main .card.selectedDate,
 .container-calendar .calendar_wrapper_main .mid_main .card.selectedDate:hover {
-  background: #ffd70036;
-  border-radius: 0px;
-  padding-left: 1em;
-  padding-bottom: 0.8em;
-  border: 2px solid var(--BackgrouldSelected);
+  background: var(--background-card-selected);
+  /* border-radius: 0px; */
+  /* padding-left: 1em;
+  padding-bottom: 0.4em; */
+  border: 2px solid #ffffff;
   border-left: 0px;
   border-right: 0px;
-  font-size: 15px;
+  /* font-size: 15px; */
+  /* text-shadow: 0px 0px 5px #ffffff; */
+  /* box-shadow: inset 0px 0px 10px #00c8ff1c; */
+  position: relative;
+  overflow: hidden;
+}
+
+/* .container-calendar .calendar_wrapper_main .mid_main .card.selectedDate::after,
+.container-calendar
+  .calendar_wrapper_main
+  .mid_main
+  .card.selectedDate:hover::after {
+  content: "";
+  position: absolute;
+  top: 29px;
+  left: -4px;
+  background: var(--background-card-selected-hover-el);
+  border-radius: 0px;
+  border: 0px solid rgb(255 255 255);
+  border-left: 0px;
+  border-right: 0px;
+  text-shadow: 0px 0px 5px #ffffff;
+
+  width: 30px;
+  height: 30px;
+  rotate: 45deg;
+} */
+
+/* HOVER SELEZIONATE */
+.container-calendar
+  .calendar_wrapper_main
+  .mid_main
+  .card.selectedFirstDEF:active,
+.container-calendar .calendar_wrapper_main .mid_main .card.selectedEnd:active,
+.container-calendar
+  .calendar_wrapper_main
+  .mid_main
+  .card.selectedDateUnica:active,
+.container-calendar
+  .calendar_wrapper_main
+  .mid_main
+  .card.selectedFirstDEF:hover,
+.container-calendar .calendar_wrapper_main .mid_main .card.selectedEnd:hover,
+.container-calendar
+  .calendar_wrapper_main
+  .mid_main
+  .card.selectedDateUnica:hover {
+  border: 0px solid var(--background-card-selected_def-hover);
+  background: var(--background-card-selected_def-hover);
+  box-shadow: 3px 5px 7px #0000001f;
 }
 .container-calendar .calendar_wrapper_main .mid_main .card.selectedDateUnica,
 .container-calendar
   .calendar_wrapper_main
   .mid_main
   .card.selectedDateUnica:hover {
-  background: #ffd7007a;
-  border-radius: 50px;
+  background: var(--background-card-selected_def);
+  background: var(--borderSelected);
+  color: white;
+  font-weight: 900;
+  font-size: 1.1em;
+  border-radius: 12px;
   padding-left: 1em;
   padding-bottom: 0.8em;
-  border: 2px solid var(--BackgrouldSelected);
+  border: 2px solid var(--borderSelected_border);
 
   font-size: 15px;
-  box-shadow: 1px 1px 5px #80808052;
+  box-shadow: 1px 1px 5px var(--shadow-selected);
 }
 
 .container-calendar .calendar_wrapper_main .mid_main .card:hover {
   background-color: #ffffff;
   border: 1px solid #ffa00000;
   box-shadow: 0px 0px 71px #0000001c;
-  font-size: 1.05em;
+  /* font-size: 1.05em; */
   z-index: 2;
   border: 1px solid #dfdfdf;
 }
@@ -122,30 +208,52 @@
   .calendar_wrapper_main
   .mid_main
   .card.cardvuota.selectedDate {
-  background: #ffd70012;
+  background: var(--background-card-vuota-selected);
+
+  border-top: 2px solid #ffffff3b;
+  border-bottom: 2px solid #ffffff3b;
+  text-shadow: 0px 0px 5px #00000000;
 }
 .container-calendar
   .calendar_wrapper_main
   .mid_main
   .card.cardvuota.selectedFirst {
-  background: #ffd70026;
-  border-radius: 37px 0px 0px 37px;
+  background: var(--background-card-vuota-selected);
+  border-radius: 12px 0px 0px 12px;
+  border-radius: 12px;
 
-  box-shadow: -1px 1px 5px #00000012;
+  padding-bottom: 0.8em;
+
+  box-shadow: -1px 1px 5px var(--shadow-card-vuota-selected);
+}
+.container-calendar
+  .calendar_wrapper_main
+  .mid_main
+  .card.cardvuota.selectedFirstDEF {
+  background: var(--background-card-vuota-selected_def);
+  border-radius: 12px 0px 0px 12px;
+  color: white;
+  font-weight: 900;
+  font-size: 0.9em;
+  box-shadow: -1px 1px 5px var(--shadow-card-vuota-selected);
+  text-shadow: 0px 0px 5px #00000000;
 }
 .container-calendar
   .calendar_wrapper_main
   .mid_main
   .card.cardvuota.selectedEnd {
-  background: #ffd70026;
-  border-radius: 0px 37px 37px 0px;
-
-  box-shadow: -1px 1px 5px #00000012;
+  background: var(--background-card-vuota-selected_def);
+  border-radius: 0px 12px 12px 0px;
+  text-shadow: 0px 0px 5px #00000000;
+  box-shadow: -1px 1px 5px var(--shadow-card-vuota-selected);
 }
 
 .container-calendar
   .calendar_wrapper_main
   .mid_main
   .card.cardvuota.selectedDateUnica {
-  background: #ffd70026;
+  background: var(--background-card-vuota-selected_def);
+}
+.card {
+  outline: 1px solid #dddddd2e;
 }
